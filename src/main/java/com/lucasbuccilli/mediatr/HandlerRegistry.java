@@ -1,9 +1,7 @@
-package com.gmail.lookie27.mediatr.implementation;
+package com.lucasbuccilli.mediatr;
 
-import com.gmail.lookie27.mediatr.infrastructure.Request;
-import com.gmail.lookie27.mediatr.infrastructure.RequestHandler;
-import com.gmail.lookie27.mediatr.infrastructure.exceptions.DuplicateHandlerException;
-import com.gmail.lookie27.mediatr.infrastructure.exceptions.MissingHandlerException;
+import com.lucasbuccilli.mediatr.exceptions.DuplicateHandlerException;
+import com.lucasbuccilli.mediatr.exceptions.MissingHandlerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
@@ -14,7 +12,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 @Slf4j
-public class HandlerRegistry {
+class HandlerRegistry {
     private final ApplicationContext applicationContext;
     private final Map<Class<Request<?>>, Supplier<RequestHandler<Request<?>, ?>>> requestHandlerRegistry = new HashMap<>();
 

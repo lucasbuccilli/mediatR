@@ -1,6 +1,6 @@
-package com.gmail.lookie27.mediatr.infrastructure.exceptions;
+package com.lucasbuccilli.mediatr.exceptions;
 
-import com.gmail.lookie27.mediatr.infrastructure.Request;
+import com.lucasbuccilli.mediatr.Request;
 
 public class MissingHandlerException extends RuntimeException {
     public MissingHandlerException(Class<Request<?>> request) {

@@ -1,12 +1,11 @@
-package com.gmail.lookie27.mediatr;
+package com.lucasbuccilli.mediatr.integration;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MediatRApplication {
+public class TestApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MediatRApplication.class, args);
+        SpringApplication.run(TestApplication.class, args);
     }
-
 }
