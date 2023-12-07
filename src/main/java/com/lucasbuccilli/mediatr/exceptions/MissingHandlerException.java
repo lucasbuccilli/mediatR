@@ -1,9 +1,7 @@
 package com.lucasbuccilli.mediatr.exceptions;
 
-import com.lucasbuccilli.mediatr.Request;
-
 public class MissingHandlerException extends RuntimeException {
-    public MissingHandlerException(Class<Request<?>> request) {
+    public MissingHandlerException(Class<?> request) {
         super("A handler is not registered for the request type: " + request.getName());
     }
 }

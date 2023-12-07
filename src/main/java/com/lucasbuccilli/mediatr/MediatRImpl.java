@@ -12,17 +12,34 @@ class MediatRImpl implements MediatR {
 
     @Override
     public <TRequest extends Request<TResponse>, TResponse> TResponse send(TRequest request) {
-        log.trace("Sending event: " + request.getClass().getName());
-        RequestHandler<TRequest, TResponse> handler = handlerRegistry.get(request.getClass());
-        log.trace("Handling event: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
+        log.trace("Sending request: " + request.getClass().getName());
+        RequestHandler<TRequest, TResponse> handler = handlerRegistry.getRequestHandler(request.getClass());
+        log.trace("Handling request: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
         return handler.handle(request);
     }
 
     @Override
     public <TRequest extends Request<TResponse>, TResponse> CompletableFuture<TResponse> sendAsync(TRequest request) {
-        log.trace("Sending async event: " + request.getClass().getName());
-        RequestHandler<TRequest, TResponse> handler = handlerRegistry.get(request.getClass());
-        log.trace("Handling async event: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
+        log.trace("Sending async request: " + request.getClass().getName());
+        RequestHandler<TRequest, TResponse> handler = handlerRegistry.getRequestHandler(request.getClass());
+        log.trace("Handling async request: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
         return CompletableFuture.supplyAsync(() -> handler.handle(request));
     }
+
+    @Override
+    public <TEvent extends Event> void send(TEvent event) {
+        log.trace("Sending event: " + event.getClass().getName());
+        EventHandler<TEvent> handler = (EventHandler<TEvent>) handlerRegistry.getEventHandler(event.getClass());
+        log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName());
+        handler.handle(event);
+    }
+
+    @Override
+    public <TEvent extends Event> CompletableFuture<Void> sendAsync(TEvent event) {
+        log.trace("Sending event: " + event.getClass().getName());
+        EventHandler<TEvent> handler = (EventHandler<TEvent>) handlerRegistry.getEventHandler(event.getClass());
+        log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName());
+        return CompletableFuture.runAsync(() -> handler.handle(event));
+    }
+
 }

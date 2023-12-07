@@ -7,14 +7,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
-public class DuplicateHandlerConfiguration {
+public class SingleRequestHandlerConfiguration {
     @Bean
-    public RequestHandler<TestRequest, String> handlerOne() {
-        return new TestRequestHandler();
-    }
-
-    @Bean
-    public RequestHandler<TestRequest, String> handlerTwo() {
+    public RequestHandler<TestRequest, String> singleHandler() {
         return new TestRequestHandler();
     }
 }
