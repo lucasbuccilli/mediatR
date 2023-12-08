@@ -5,8 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.gmail.lookie27'
-version = '0.0.1-SNAPSHOT'
+group = 'io.github.lucasbuccilli'
+version = '1.0.0-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
@@ -40,9 +40,9 @@ tasks.named('test') {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'com.lucasbuccilli'
+            groupId = group
             artifactId = 'mediatR'
-            version = '1.0.0'
+            version = version
             from components.java
         }
     }
