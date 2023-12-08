@@ -17,6 +17,7 @@ import com.lucasbuccilli.mediatr.integration.requests.TestRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -39,19 +40,6 @@ class MediatRApplicationTests {
         void duplicateRequestHandlersShouldThrowException() {
             new ApplicationContextRunner()
                     .withUserConfiguration(DuplicateRequestHandlerConfiguration.class)
-                    .withUserConfiguration(MediatRConfiguration.class)
-                    .run(context -> {
-                        assertNotNull(context.getStartupFailure());
-                        var rootCause = getRootCause(context.getStartupFailure());
-                        assertNotNull(rootCause);
-                        assertEquals(DuplicateHandlerException.class, rootCause.getClass());
-                    });
-        }
-
-        @Test
-        void duplicateEventHandlersShouldThrowException() {
-            new ApplicationContextRunner()
-                    .withUserConfiguration(DuplicateEventHandlerConfiguration.class)
                     .withUserConfiguration(MediatRConfiguration.class)
                     .run(context -> {
                         assertNotNull(context.getStartupFailure());
@@ -93,6 +81,7 @@ class MediatRApplicationTests {
             assertFalse(future.isDone());
             future.get();
             assertTrue(future.isDone());
+            verify(testHandler).handle(request);
         }
 
         @Test
@@ -107,7 +96,7 @@ class MediatRApplicationTests {
     @Nested
     @SpringBootTest(classes = TestApplication.class)
     @Import(value = { SingleEventHandlerConfiguration.class, MediatRConfiguration.class })
-    class EventHandlerTests {
+    class SingleEventHandlerTests {
         @Autowired
         private MediatR mediatR;
 
@@ -135,12 +124,55 @@ class MediatRApplicationTests {
             assertFalse(future.isDone());
             future.get();
             assertTrue(future.isDone());
+            verify(testHandler).handle(event);
         }
 
         @Test
         void shouldThrowExceptionWhenEventHandlerNotRegistered() {
             var exception = assertThrows(MissingHandlerException.class, () -> mediatR.send(new Event(){}));
             assertEquals(MissingHandlerException.class, exception.getClass());
+        }
+    }
+
+    @Nested
+    @SpringBootTest(classes = TestApplication.class)
+    @Import(value = { DuplicateEventHandlerConfiguration.class, MediatRConfiguration.class })
+    class MultipleEventHandlerTests {
+        @Autowired
+        private MediatR mediatR;
+
+        @SpyBean
+        @Qualifier("handlerOne")
+        private EventHandler<TestEvent> handlerOne;
+
+        @SpyBean
+        @Qualifier("handlerTwo")
+        private EventHandler<TestEvent> handlerTwo;
+
+        @Test
+        void shouldDelegateEventToHandler() {
+            var event = new TestEvent();
+            mediatR.send(event);
+            verify(handlerOne).handle(event);
+            verify(handlerTwo).handle(event);
+        }
+
+        @Test
+        void shouldDelegateAsyncEventToHandler() throws ExecutionException, InterruptedException {
+            var sleepTime = 100;
+            var event = new TestEvent(() -> {
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            var future = mediatR.sendAsync(event);
+            assertFalse(future.isDone());
+            future.get();
+            assertTrue(future.isDone());
+            verify(handlerOne).handle(event);
+            verify(handlerTwo).handle(event);
         }
     }
 }

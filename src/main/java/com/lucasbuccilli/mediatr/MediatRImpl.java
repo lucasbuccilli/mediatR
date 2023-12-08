@@ -3,7 +3,9 @@ package com.lucasbuccilli.mediatr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,17 +31,22 @@ class MediatRImpl implements MediatR {
     @Override
     public <TEvent extends Event> void send(TEvent event) {
         log.trace("Sending event: " + event.getClass().getName());
-        EventHandler<TEvent> handler = (EventHandler<TEvent>) handlerRegistry.getEventHandler(event.getClass());
-        log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName());
-        handler.handle(event);
+        List<EventHandler<TEvent>> handlers =  handlerRegistry.getEventHandler((Class<TEvent>) event.getClass());
+        handlers.stream()
+                .peek(handler -> log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName()))
+                .forEach(handler -> handler.handle(event));
     }
 
     @Override
     public <TEvent extends Event> CompletableFuture<Void> sendAsync(TEvent event) {
         log.trace("Sending event: " + event.getClass().getName());
-        EventHandler<TEvent> handler = (EventHandler<TEvent>) handlerRegistry.getEventHandler(event.getClass());
-        log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName());
-        return CompletableFuture.runAsync(() -> handler.handle(event));
+        List<EventHandler<TEvent>> handlers =  handlerRegistry.getEventHandler((Class<TEvent>) event.getClass());
+        return CompletableFuture.allOf(
+                handlers.stream()
+                    .peek(handler -> log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName()))
+                    .map(handler -> CompletableFuture.runAsync(() -> handler.handle(event)))
+                .toArray(CompletableFuture[]::new)
+        );
     }
 
 }

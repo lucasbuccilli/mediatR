@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
 public class DuplicateRequestHandlerConfiguration {
-    @Bean
+    @Bean(name = "handlerOne")
     public RequestHandler<TestRequest, String> handlerOne() {
         return new TestRequestHandler();
     }
 
-    @Bean
+    @Bean(name = "handlerTwo")
     public RequestHandler<TestRequest, String> handlerTwo() {
         return new TestRequestHandler();
     }
