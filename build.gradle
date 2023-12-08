@@ -3,13 +3,24 @@ plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'maven-publish'
+    id 'signing'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
 }
 
 group = 'io.github.lucasbuccilli'
-version = '1.0.0-SNAPSHOT'
+version = '1.0.0'
 
 java {
     sourceCompatibility = '17'
+    withJavadocJar()
+    withSourcesJar()
 }
 
 configurations {
@@ -20,6 +31,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
@@ -35,24 +47,65 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
-
-
 publishing {
     publications {
+
         mavenJava(MavenPublication) {
+
             groupId = group
             artifactId = 'mediatR'
             version = version
             from components.java
-        }
-    }
-    repositories {
-        maven {
-            url 'https://lucasbuccilli-229032737763.d.codeartifact.us-east-1.amazonaws.com/maven/artifacts/'
-            credentials {
-                username "aws"
-                password System.env.CODEARTIFACT_AUTH_TOKEN
+
+            pom {
+                name = 'mediatR'
+                description = 'Simple mediator implementation in Java ' +
+                        'In-process messaging with no dependencies. ' +
+                        'MediatR is a Java recreation of MediatR by jbogard. '
+                url = 'https://github.com/lucasbuccilli/mediatR'
+                inceptionYear = '2023'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'lucasbuccilli'
+                        name = 'Lucas Buccilli'
+                        email = 'lookie27@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:github.com/lucasbuccilli/mediatR.git'
+                    developerConnection = 'scm:git:ssh://github.com/lucasbuccilli/mediatR.git'
+                    url = 'https://github.com/lucasbuccilli/mediatR'
+                }
             }
         }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv('SONATYPE_USERNAME')
+                password = System.getenv('SONATYPE_PASSWORD')
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }

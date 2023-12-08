@@ -27,11 +27,12 @@ jobs:
         distribution: 'corretto'
     - name: Configure GPG Key
       run: |
-        mkdir -p ~/.gnupg/
-        printf "$GPG_PRIVATE_KEY" | base64 --decode > ~/.gnupg/private.key
+        mkdir -p $WORKSPACE/.gnupg
+        printf "$GPG_PRIVATE_KEY" | base64 --decode > $WORKSPACE/.gnupg/private.key
       env:
         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        WORKSPACE: ${{ github.workspace }}
     - name: Sign
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
-        arguments: sign -Psigning.secretKeyRingFile=~/.gnupg/private.key -Psigning.password=${{ secrets.GPG_PASSPHRASE}} -Psigning.keyId=${{ secrets.GPG_KEY_ID }}
+        arguments: sign -Psigning.secretKeyRingFile=${{ github.workspace }}/.gnupg/private.key -Psigning.password=${{ secrets.GPG_PASSPHRASE}} -Psigning.keyId=${{ secrets.GPG_KEY_ID }}
