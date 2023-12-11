@@ -60,7 +60,7 @@ publishing {
             pom {
                 name = 'mediatR'
                 description = 'Simple mediator implementation in Java ' +
-                        'In-process messaging with no dependencies. ' +
+                        'In-process messaging with minimal dependencies. ' +
                         'MediatR is a Java recreation of MediatR by jbogard. '
                 url = 'https://github.com/lucasbuccilli/mediatR'
                 inceptionYear = '2023'

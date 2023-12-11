@@ -35,8 +35,8 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: sign -Psigning.secretKeyRingFile=${{ github.workspace }}/.gnupg/private.key -Psigning.password=${{ secrets.GPG_PASSPHRASE}} -Psigning.keyId=${{ secrets.GPG_KEY_ID }}
-    - name: Sign
+    - name: Publish
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
-        arguments: sign -Pusername=${{ SONATYPE_USERNAME}} -Ppasswword=${{ SONATYPE_PASSWORD }}
+        arguments: publish -Pusername=${{ secrets.SONATYPE_USERNAME }} -Ppasswword=${{ secrets.SONATYPE_PASSWORD }}
 
