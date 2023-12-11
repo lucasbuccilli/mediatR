@@ -1,7 +1,7 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.lucasbuccilli/mediatR.svg?label=Maven%20Central)](https://central.sonatype.com/namespace/io.github.lucasbuccilli)
+[![Build](https://img.shields.io/github/actions/workflow/status/lucasbuccilli/mediatR/test.yml?label=Build)](https://github.com/lucasbuccilli/mediatR/actions/workflows/test.yml?label=Build)
 # MediatR
 Simple mediator implementation in Java.
-
-In-process messaging with no dependencies.
 
 Greatly inspired by [jbogard](https://github.com/jbogard/MediatR)'s .NET implementation.
 
@@ -10,7 +10,7 @@ Greatly inspired by [jbogard](https://github.com/jbogard/MediatR)'s .NET impleme
 
 Add MediatR to your _build.gradle_
 ```
-implementation 'io.github.lucasbuccilli:mediatR:1.0.0'
+implementation 'io.github.lucasbuccilli:mediatR:1.0.1'
 ```
 
 Create a MediatR bean
@@ -26,7 +26,7 @@ public class MediatRConfig {
 
 ## Using MediatR
 
-MediatR has two kinds of messages it dispatches:
+MediatR has two kind of messages it dispatches:
 
 **Request/response messages**, dispatched to a single handler
 - `Request<T>`
@@ -37,16 +37,15 @@ MediatR has two kinds of messages it dispatches:
 - `EventHandler<T extends Event>`
 
 ### Requests and Request Handlers
-First, create a request
+Create a request
 ```
 public class GetUserRequest implements Request<User> {
     private int userId;
     ...
 }
 ```
-\
-\
-Next, create a handler
+
+Create a handler
 
 __Note: A handler must be annotated with `@Component` or `@Service`__
 
@@ -60,14 +59,12 @@ public class GetUserRequestHandler implements RequestHandler<GetUserRequest> {
     }
 }
 ```
-\
-\
-Now send the request with MediatR
+Send the request with MediatR and _tada_
 ```
 var user = mediatR.send(new GetUserRequest(1));
 ```
-
-Sending events are similar, but you can register multiple handlers for the same event.
+### Events and Event Handlers
+Events are similar to requests, but you can register multiple handlers for the same event.
 
 ```
 public class DeleteUserEvent implements Event {
@@ -75,12 +72,6 @@ public class DeleteUserEvent implements Event {
     ...
 }
 ```
-\
-\
-Next, create a handler
-
-__Note: A handler must be annotated with `@Component` or `@Service`__
-
 ```
 @Component
 public class DeleteUserEventHandlerOne implements EventHandler<DeleteUserEvent> {
@@ -98,9 +89,6 @@ public class DeleteUserEventHandlerTwo implements EventHandler<DeleteUserEvent> 
     }
 }
 ```
-\
-\
-Now send the request with MediatR
 ```
 mediatR.send(new DeleteUserEvent(1));
 ```
@@ -114,5 +102,3 @@ CompletableFuture<User> userFurure = mediatR.sendAsync(new GetUserRequest(1));
 
 CompletableFuture<Void> userFurure = mediatR.sendAsync(new DeleteUserEvent(1));
 ```
-
-For events, the future will complete when all handlers have finished.
