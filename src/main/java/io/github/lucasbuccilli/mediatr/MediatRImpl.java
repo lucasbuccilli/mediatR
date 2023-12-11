@@ -1,5 +1,6 @@
 package io.github.lucasbuccilli.mediatr;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,11 +9,11 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RequiredArgsConstructor
-class MediatRImpl implements MediatR {
+final class MediatRImpl implements MediatR {
     private final HandlerRegistry handlerRegistry;
 
     @Override
-    public <TRequest extends Request<TResponse>, TResponse> TResponse send(TRequest request) {
+    public <TRequest extends Request<TResponse>, TResponse> TResponse send(@NonNull TRequest request) {
         log.trace("Sending request: " + request.getClass().getName());
         RequestHandler<TRequest, TResponse> handler = handlerRegistry.getRequestHandler(request.getClass());
         log.trace("Handling request: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
@@ -20,7 +21,7 @@ class MediatRImpl implements MediatR {
     }
 
     @Override
-    public <TRequest extends Request<TResponse>, TResponse> CompletableFuture<TResponse> sendAsync(TRequest request) {
+    public <TRequest extends Request<TResponse>, TResponse> CompletableFuture<TResponse> sendAsync(@NonNull TRequest request) {
         log.trace("Sending async request: " + request.getClass().getName());
         RequestHandler<TRequest, TResponse> handler = handlerRegistry.getRequestHandler(request.getClass());
         log.trace("Handling async request: " + request.getClass().getName() + " with handler: " + handler.getClass().getName());
@@ -28,7 +29,7 @@ class MediatRImpl implements MediatR {
     }
 
     @Override
-    public <TEvent extends Event> void send(TEvent event) {
+    public <TEvent extends Event> void send(@NonNull TEvent event) {
         log.trace("Sending event: " + event.getClass().getName());
         List<EventHandler<TEvent>> handlers =  handlerRegistry.getEventHandler((Class<TEvent>) event.getClass());
         handlers.stream()
@@ -37,7 +38,7 @@ class MediatRImpl implements MediatR {
     }
 
     @Override
-    public <TEvent extends Event> CompletableFuture<Void> sendAsync(TEvent event) {
+    public <TEvent extends Event> CompletableFuture<Void> sendAsync(@NonNull TEvent event) {
         log.trace("Sending event: " + event.getClass().getName());
         List<EventHandler<TEvent>> handlers =  handlerRegistry.getEventHandler((Class<TEvent>) event.getClass());
         return CompletableFuture.allOf(

@@ -1,4 +1,7 @@
 package io.github.lucasbuccilli.mediatr;
 
-public interface Event {
+/**
+ *
+ */
+public interface Event extends Message {
 }

@@ -1,4 +1,7 @@
 package io.github.lucasbuccilli.mediatr;
 
-public interface Request<T> {
+/**
+ * @param <T> Response type that the {@link io.github.lucasbuccilli.mediatr.RequestHandler} will return
+ */
+public interface Request<T> extends Message {
 }

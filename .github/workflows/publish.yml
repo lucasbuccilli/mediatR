@@ -31,12 +31,10 @@ jobs:
       env:
         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         WORKSPACE: ${{ github.workspace }}
-    - name: Sign
-      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
-      with:
-        arguments: sign -Psigning.secretKeyRingFile=${{ github.workspace }}/.gnupg/private.key -Psigning.password=${{ secrets.GPG_PASSPHRASE}} -Psigning.keyId=${{ secrets.GPG_KEY_ID }}
     - name: Publish
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
-        arguments: publish -Pusername=${{ secrets.SONATYPE_USERNAME }} -Ppasswword=${{ secrets.SONATYPE_PASSWORD }}
-
+        arguments: publishToSonatype closeAndReleaseSonatypeStagingRepository -Psigning.secretKeyRingFile=${{ github.workspace }}/.gnupg/private.key -Psigning.password=${{ secrets.GPG_PASSPHRASE}} -Psigning.keyId=${{ secrets.GPG_KEY_ID }}
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

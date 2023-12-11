@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-class HandlerRegistry {
+final class HandlerRegistry {
     private final ApplicationContext applicationContext;
     private final Map<Class<? extends Request<?>>, RequestHandler<? extends Request<?>, ?>> requestHandlerRegistry = new HashMap<>();
     private final Map<Class<? extends Event>, List<EventHandler<? extends Event>>> eventHandlerRegistry = new HashMap<>();
