@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MediatRImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mediatR</a> &gt; <a href="index.source.html" class="el_package">io.github.lucasbuccilli.mediatr</a> &gt; <span class="el_source">MediatRImpl.java</span></div><h1>MediatRImpl.java</h1><pre class="source lang-java linenums">package io.github.lucasbuccilli.mediatr;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+<span class="fc" id="L10">@Slf4j</span>
+<span class="fc" id="L11">@RequiredArgsConstructor</span>
+final class MediatRImpl implements MediatR {
+    private final HandlerRegistry handlerRegistry;
+
+    @Override
+<span class="pc bpc" id="L16" title="1 of 2 branches missed.">    public &lt;TRequest extends Request&lt;TResponse&gt;, TResponse&gt; TResponse send(@NonNull TRequest request) {</span>
+<span class="fc" id="L17">        log.trace(&quot;Sending request: &quot; + request.getClass().getName());</span>
+<span class="fc" id="L18">        RequestHandler&lt;TRequest, TResponse&gt; handler = handlerRegistry.getRequestHandler(request.getClass());</span>
+<span class="fc" id="L19">        log.trace(&quot;Handling request: &quot; + request.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName());</span>
+<span class="fc" id="L20">        return handler.handle(request);</span>
+    }
+
+    @Override
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">    public &lt;TRequest extends Request&lt;TResponse&gt;, TResponse&gt; CompletableFuture&lt;TResponse&gt; sendAsync(@NonNull TRequest request) {</span>
+<span class="fc" id="L25">        log.trace(&quot;Sending async request: &quot; + request.getClass().getName());</span>
+<span class="fc" id="L26">        RequestHandler&lt;TRequest, TResponse&gt; handler = handlerRegistry.getRequestHandler(request.getClass());</span>
+<span class="fc" id="L27">        log.trace(&quot;Handling async request: &quot; + request.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName());</span>
+<span class="fc" id="L28">        return CompletableFuture.supplyAsync(() -&gt; handler.handle(request));</span>
+    }
+
+    @Override
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">    public &lt;TEvent extends Event&gt; void send(@NonNull TEvent event) {</span>
+<span class="fc" id="L33">        log.trace(&quot;Sending event: &quot; + event.getClass().getName());</span>
+<span class="fc" id="L34">        List&lt;EventHandler&lt;TEvent&gt;&gt; handlers =  handlerRegistry.getEventHandler((Class&lt;TEvent&gt;) event.getClass());</span>
+<span class="fc" id="L35">        handlers.stream()</span>
+<span class="fc" id="L36">                .peek(handler -&gt; log.trace(&quot;Handling event: &quot; + event.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName()))</span>
+<span class="fc" id="L37">                .forEach(handler -&gt; handler.handle(event));</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    public &lt;TEvent extends Event&gt; CompletableFuture&lt;Void&gt; sendAsync(@NonNull TEvent event) {</span>
+<span class="fc" id="L42">        log.trace(&quot;Sending event: &quot; + event.getClass().getName());</span>
+<span class="fc" id="L43">        List&lt;EventHandler&lt;TEvent&gt;&gt; handlers =  handlerRegistry.getEventHandler((Class&lt;TEvent&gt;) event.getClass());</span>
+<span class="fc" id="L44">        return CompletableFuture.allOf(</span>
+<span class="fc" id="L45">                handlers.stream()</span>
+<span class="fc" id="L46">                    .peek(handler -&gt; log.trace(&quot;Handling event: &quot; + event.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName()))</span>
+<span class="fc" id="L47">                    .map(handler -&gt; CompletableFuture.runAsync(() -&gt; handler.handle(event)))</span>
+<span class="fc" id="L48">                .toArray(CompletableFuture[]::new)</span>
+        );
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

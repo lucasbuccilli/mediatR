@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HandlerRegistry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mediatR</a> &gt; <a href="index.source.html" class="el_package">io.github.lucasbuccilli.mediatr</a> &gt; <span class="el_source">HandlerRegistry.java</span></div><h1>HandlerRegistry.java</h1><pre class="source lang-java linenums">package io.github.lucasbuccilli.mediatr;
+
+import io.github.lucasbuccilli.mediatr.exceptions.DuplicateHandlerException;
+import io.github.lucasbuccilli.mediatr.exceptions.MissingHandlerException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.GenericTypeResolver;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+<span class="fc" id="L15">@Slf4j</span>
+final class HandlerRegistry {
+    private final ApplicationContext applicationContext;
+<span class="fc" id="L18">    private final Map&lt;Class&lt;? extends Request&lt;?&gt;&gt;, RequestHandler&lt;? extends Request&lt;?&gt;, ?&gt;&gt; requestHandlerRegistry = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L19">    private final Map&lt;Class&lt;? extends Event&gt;, List&lt;EventHandler&lt;? extends Event&gt;&gt;&gt; eventHandlerRegistry = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L21">    public HandlerRegistry(ApplicationContext context) {</span>
+<span class="fc" id="L22">        applicationContext = context;</span>
+<span class="fc" id="L23">        registerHandlers();</span>
+<span class="fc" id="L24">    }</span>
+
+    public &lt;TRequest extends Request&lt;TResponse&gt;, TResponse&gt; RequestHandler&lt;TRequest, TResponse&gt; getRequestHandler(Class&lt;TRequest&gt; requestClass) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (!requestHandlerRegistry.containsKey(requestClass)) {</span>
+<span class="fc" id="L28">            throw new MissingHandlerException(requestClass);</span>
+        }
+<span class="fc" id="L30">        return (RequestHandler&lt;TRequest, TResponse&gt;) requestHandlerRegistry.get(requestClass);</span>
+    }
+
+    public &lt;TEvent extends Event&gt; List&lt;EventHandler&lt;TEvent&gt;&gt; getEventHandler(Class&lt;TEvent&gt; requestClass) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (!eventHandlerRegistry.containsKey(requestClass)) {</span>
+<span class="fc" id="L35">            throw new MissingHandlerException(requestClass);</span>
+        }
+<span class="fc" id="L37">        return eventHandlerRegistry.get(requestClass).stream().map(s -&gt; (EventHandler&lt;TEvent&gt;) s).toList();</span>
+    }
+
+    private void registerHandlers() {
+<span class="fc" id="L41">        Arrays.stream(applicationContext.getBeanNamesForType(RequestHandler.class))</span>
+<span class="fc" id="L42">                .forEach(this::registerRequestHandler);</span>
+<span class="fc" id="L43">        Arrays.stream(applicationContext.getBeanNamesForType(EventHandler.class))</span>
+<span class="fc" id="L44">                .forEach(this::registerEventHandler);</span>
+<span class="fc" id="L45">    }</span>
+
+    private &lt;TResponse&gt; void registerRequestHandler(String requestHandlerName) {
+<span class="fc" id="L48">        RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt; handler = (RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt;) applicationContext.getBean(requestHandlerName);</span>
+<span class="fc" id="L49">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), RequestHandler.class);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (genericArguments != null) {</span>
+<span class="fc" id="L51">            Class&lt;Request&lt;?&gt;&gt; requestType = (Class&lt;Request&lt;?&gt;&gt;) genericArguments[0];</span>
+<span class="fc" id="L52">            log.trace(&quot;Registering RequestHandler for event: &quot; + requestType.getName());</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">            if (requestHandlerRegistry.containsKey(requestType)) {</span>
+<span class="fc" id="L54">                throw new DuplicateHandlerException(requestType);</span>
+            }
+<span class="fc" id="L56">            requestHandlerRegistry.put(requestType, handler);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    private void registerEventHandler(String eventHandlerName) {
+<span class="fc" id="L61">        EventHandler&lt;Event&gt; handler = (EventHandler&lt;Event&gt;) applicationContext.getBean(eventHandlerName);</span>
+<span class="fc" id="L62">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), EventHandler.class);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (genericArguments != null) {</span>
+<span class="fc" id="L64">            Class&lt;Event&gt; eventClass = (Class&lt;Event&gt;) genericArguments[0];</span>
+<span class="fc" id="L65">            log.trace(&quot;Registering EventHandler for event: &quot; + eventClass.getName());</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (eventHandlerRegistry.containsKey(eventClass)) {</span>
+<span class="fc" id="L67">                eventHandlerRegistry.get(eventClass).add(handler);</span>
+            } else {
+<span class="fc" id="L69">                var handlerList = new ArrayList&lt;EventHandler&lt;? extends Event&gt;&gt;();</span>
+<span class="fc" id="L70">                handlerList.add(handler);</span>
+<span class="fc" id="L71">                eventHandlerRegistry.put(eventClass, handlerList);</span>
+            }
+        }
+<span class="fc" id="L74">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
