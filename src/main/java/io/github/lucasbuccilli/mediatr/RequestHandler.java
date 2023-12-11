@@ -1,5 +1,7 @@
 package io.github.lucasbuccilli.mediatr;
 
+import lombok.NonNull;
+
 /**
  * Request handlers will be registered by {@link io.github.lucasbuccilli.mediatr.HandlerRegistry}
  * @param <TRequest> class that implements {@link io.github.lucasbuccilli.mediatr.Request}
@@ -11,5 +13,5 @@ public interface RequestHandler<TRequest extends Request<TResponse>, TResponse> 
      * @param request to be handled
      * @return response from the handler
      */
-    TResponse handle(TRequest request);
+    TResponse handle(@NonNull TRequest request);
 }

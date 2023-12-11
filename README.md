@@ -10,7 +10,7 @@ Greatly inspired by [jbogard](https://github.com/jbogard/MediatR)'s .NET impleme
 
 Add MediatR to your _build.gradle_
 ```
-implementation 'io.github.lucasbuccilli:mediatR:1.0.1'
+implementation 'io.github.lucasbuccilli:mediatR:1.0.2'
 ```
 
 Create a MediatR bean

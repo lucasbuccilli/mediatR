@@ -5,6 +5,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '1.3.0'
+    id 'jacoco'
 }
 
 sourceSets {
@@ -16,7 +17,7 @@ sourceSets {
 }
 
 group = 'io.github.lucasbuccilli'
-version = '1.0.1'
+version = '1.0.2'
 
 java {
     sourceCompatibility = '17'
@@ -116,10 +117,15 @@ nexusPublishing {
 }
 
 
-
-
 javadoc {
     if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        csv.required = true
     }
 }
