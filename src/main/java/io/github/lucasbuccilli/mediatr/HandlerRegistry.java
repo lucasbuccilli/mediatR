@@ -1,6 +1,7 @@
 package io.github.lucasbuccilli.mediatr;
 
 import io.github.lucasbuccilli.mediatr.exceptions.DuplicateHandlerException;
+import io.github.lucasbuccilli.mediatr.exceptions.InvalidHandlerException;
 import io.github.lucasbuccilli.mediatr.exceptions.MissingHandlerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -54,6 +55,8 @@ final class HandlerRegistry {
                 throw new DuplicateHandlerException(requestType);
             }
             requestHandlerRegistry.put(requestType, handler);
+        } else {
+            throw new InvalidHandlerException(handler.getClass());
         }
     }
 
@@ -70,6 +73,8 @@ final class HandlerRegistry {
                 handlerList.add(handler);
                 eventHandlerRegistry.put(eventClass, handlerList);
             }
+        } else {
+            throw new InvalidHandlerException(handler.getClass());
         }
     }
 }

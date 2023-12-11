@@ -1,5 +1,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.lucasbuccilli/mediatR.svg?label=Maven%20Central)](https://central.sonatype.com/namespace/io.github.lucasbuccilli)
 [![Build](https://img.shields.io/github/actions/workflow/status/lucasbuccilli/mediatR/test.yml?label=Build)](https://github.com/lucasbuccilli/mediatR/actions/workflows/test.yml?label=Build)
+![Test Coverage](https://github.com/lucasbuccilli/mediatR/blob/gh-pages/badges/jacoco.svg?raw=true)
 # MediatR
 Simple mediator implementation in Java.
 
@@ -10,7 +11,7 @@ Greatly inspired by [jbogard](https://github.com/jbogard/MediatR)'s .NET impleme
 
 Add MediatR to your _build.gradle_
 ```
-implementation 'io.github.lucasbuccilli:mediatR:1.0.1'
+implementation 'io.github.lucasbuccilli:mediatR:1.0.2'
 ```
 
 Create a MediatR bean
