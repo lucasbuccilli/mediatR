@@ -3,7 +3,7 @@
 import io.github.lucasbuccilli.mediatr.exceptions.DuplicateHandlerException;
 import io.github.lucasbuccilli.mediatr.exceptions.InvalidHandlerException;
 import io.github.lucasbuccilli.mediatr.exceptions.MissingHandlerException;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 
@@ -12,70 +12,71 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
-<span class="fc" id="L16">@Slf4j</span>
+<span class="fc" id="L17">@CommonsLog</span>
 final class HandlerRegistry {
     private final ApplicationContext applicationContext;
-<span class="fc" id="L19">    private final Map&lt;Class&lt;? extends Request&lt;?&gt;&gt;, RequestHandler&lt;? extends Request&lt;?&gt;, ?&gt;&gt; requestHandlerRegistry = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L20">    private final Map&lt;Class&lt;? extends Event&gt;, List&lt;EventHandler&lt;? extends Event&gt;&gt;&gt; eventHandlerRegistry = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L20">    private final Map&lt;Class&lt;? extends Request&lt;?&gt;&gt;, RequestHandler&lt;? extends Request&lt;?&gt;, ?&gt;&gt; requestHandlerRegistry = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L21">    private final Map&lt;Class&lt;? extends Event&gt;, List&lt;EventHandler&lt;? extends Event&gt;&gt;&gt; eventHandlerRegistry = new HashMap&lt;&gt;();</span>
 
-<span class="fc" id="L22">    public HandlerRegistry(ApplicationContext context) {</span>
-<span class="fc" id="L23">        applicationContext = context;</span>
-<span class="fc" id="L24">        registerHandlers();</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L23">    public HandlerRegistry(ApplicationContext context) {</span>
+<span class="fc" id="L24">        applicationContext = context;</span>
+<span class="fc" id="L25">        registerHandlers();</span>
+<span class="fc" id="L26">    }</span>
 
     public &lt;TRequest extends Request&lt;TResponse&gt;, TResponse&gt; RequestHandler&lt;TRequest, TResponse&gt; getRequestHandler(Class&lt;TRequest&gt; requestClass) {
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (!requestHandlerRegistry.containsKey(requestClass)) {</span>
-<span class="fc" id="L29">            throw new MissingHandlerException(requestClass);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (!requestHandlerRegistry.containsKey(requestClass)) {</span>
+<span class="fc" id="L30">            throw new MissingHandlerException(requestClass);</span>
         }
-<span class="fc" id="L31">        return (RequestHandler&lt;TRequest, TResponse&gt;) requestHandlerRegistry.get(requestClass);</span>
+<span class="fc" id="L32">        return (RequestHandler&lt;TRequest, TResponse&gt;) requestHandlerRegistry.get(requestClass);</span>
     }
 
     public &lt;TEvent extends Event&gt; List&lt;EventHandler&lt;TEvent&gt;&gt; getEventHandler(Class&lt;TEvent&gt; requestClass) {
-<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (!eventHandlerRegistry.containsKey(requestClass)) {</span>
-<span class="fc" id="L36">            throw new MissingHandlerException(requestClass);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (!eventHandlerRegistry.containsKey(requestClass)) {</span>
+<span class="fc" id="L37">            throw new MissingHandlerException(requestClass);</span>
         }
-<span class="fc" id="L38">        return eventHandlerRegistry.get(requestClass).stream().map(s -&gt; (EventHandler&lt;TEvent&gt;) s).toList();</span>
+<span class="fc" id="L39">        return eventHandlerRegistry.get(requestClass).stream().map(s -&gt; (EventHandler&lt;TEvent&gt;) s).toList();</span>
     }
 
     private void registerHandlers() {
-<span class="fc" id="L42">        Arrays.stream(applicationContext.getBeanNamesForType(RequestHandler.class))</span>
-<span class="fc" id="L43">                .forEach(this::registerRequestHandler);</span>
-<span class="fc" id="L44">        Arrays.stream(applicationContext.getBeanNamesForType(EventHandler.class))</span>
-<span class="fc" id="L45">                .forEach(this::registerEventHandler);</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L43">        Arrays.stream(applicationContext.getBeanNamesForType(RequestHandler.class))</span>
+<span class="fc" id="L44">                .forEach(this::registerRequestHandler);</span>
+<span class="fc" id="L45">        Arrays.stream(applicationContext.getBeanNamesForType(EventHandler.class))</span>
+<span class="fc" id="L46">                .forEach(this::registerEventHandler);</span>
+<span class="fc" id="L47">    }</span>
 
     private &lt;TResponse&gt; void registerRequestHandler(String requestHandlerName) {
-<span class="fc" id="L49">        RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt; handler = (RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt;) applicationContext.getBean(requestHandlerName);</span>
-<span class="fc" id="L50">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), RequestHandler.class);</span>
-<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (genericArguments != null) {</span>
-<span class="fc" id="L52">            Class&lt;Request&lt;?&gt;&gt; requestType = (Class&lt;Request&lt;?&gt;&gt;) genericArguments[0];</span>
-<span class="fc" id="L53">            log.trace(&quot;Registering RequestHandler for event: &quot; + requestType.getName());</span>
-<span class="fc bfc" id="L54" title="All 2 branches covered.">            if (requestHandlerRegistry.containsKey(requestType)) {</span>
-<span class="fc" id="L55">                throw new DuplicateHandlerException(requestType);</span>
+<span class="fc" id="L50">        RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt; handler = (RequestHandler&lt;Request&lt;TResponse&gt;, TResponse&gt;) applicationContext.getBean(requestHandlerName);</span>
+<span class="fc" id="L51">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), RequestHandler.class);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (genericArguments != null) {</span>
+<span class="fc" id="L53">            Class&lt;Request&lt;?&gt;&gt; requestType = (Class&lt;Request&lt;?&gt;&gt;) genericArguments[0];</span>
+<span class="fc" id="L54">            log.trace(&quot;Registering RequestHandler for event: &quot; + requestType.getName());</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (requestHandlerRegistry.containsKey(requestType)) {</span>
+<span class="fc" id="L56">                throw new DuplicateHandlerException(requestType);</span>
             }
-<span class="fc" id="L57">            requestHandlerRegistry.put(requestType, handler);</span>
-<span class="fc" id="L58">        } else {</span>
-<span class="fc" id="L59">            throw new InvalidHandlerException(handler.getClass());</span>
+<span class="fc" id="L58">            requestHandlerRegistry.put(requestType, handler);</span>
+<span class="fc" id="L59">        } else {</span>
+<span class="fc" id="L60">            throw new InvalidHandlerException(handler.getClass());</span>
         }
-<span class="fc" id="L61">    }</span>
+<span class="fc" id="L62">    }</span>
 
     private void registerEventHandler(String eventHandlerName) {
-<span class="fc" id="L64">        EventHandler&lt;Event&gt; handler = (EventHandler&lt;Event&gt;) applicationContext.getBean(eventHandlerName);</span>
-<span class="fc" id="L65">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), EventHandler.class);</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (genericArguments != null) {</span>
-<span class="fc" id="L67">            Class&lt;Event&gt; eventClass = (Class&lt;Event&gt;) genericArguments[0];</span>
-<span class="fc" id="L68">            log.trace(&quot;Registering EventHandler for event: &quot; + eventClass.getName());</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (eventHandlerRegistry.containsKey(eventClass)) {</span>
-<span class="fc" id="L70">                eventHandlerRegistry.get(eventClass).add(handler);</span>
+<span class="fc" id="L65">        EventHandler&lt;Event&gt; handler = (EventHandler&lt;Event&gt;) applicationContext.getBean(eventHandlerName);</span>
+<span class="fc" id="L66">        Class&lt;?&gt;[] genericArguments = GenericTypeResolver.resolveTypeArguments(handler.getClass(), EventHandler.class);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (genericArguments != null) {</span>
+<span class="fc" id="L68">            Class&lt;Event&gt; eventClass = (Class&lt;Event&gt;) genericArguments[0];</span>
+<span class="fc" id="L69">            log.trace(&quot;Registering EventHandler for event: &quot; + eventClass.getName());</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (eventHandlerRegistry.containsKey(eventClass)) {</span>
+<span class="fc" id="L71">                eventHandlerRegistry.get(eventClass).add(handler);</span>
             } else {
-<span class="fc" id="L72">                var handlerList = new ArrayList&lt;EventHandler&lt;? extends Event&gt;&gt;();</span>
-<span class="fc" id="L73">                handlerList.add(handler);</span>
-<span class="fc" id="L74">                eventHandlerRegistry.put(eventClass, handlerList);</span>
+<span class="fc" id="L73">                var handlerList = new ArrayList&lt;EventHandler&lt;? extends Event&gt;&gt;();</span>
+<span class="fc" id="L74">                handlerList.add(handler);</span>
+<span class="fc" id="L75">                eventHandlerRegistry.put(eventClass, handlerList);</span>
             }
-<span class="fc" id="L76">        } else {</span>
-<span class="fc" id="L77">            throw new InvalidHandlerException(handler.getClass());</span>
+<span class="fc" id="L77">        } else {</span>
+<span class="fc" id="L78">            throw new InvalidHandlerException(handler.getClass());</span>
         }
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L80">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

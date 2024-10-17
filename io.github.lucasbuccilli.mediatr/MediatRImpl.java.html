@@ -2,13 +2,13 @@
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-<span class="fc" id="L10">@Slf4j</span>
-<span class="fc" id="L11">@RequiredArgsConstructor</span>
+<span class="fc" id="L10">@CommonsLog</span>
+@RequiredArgsConstructor
 final class MediatRImpl implements MediatR {
     private final HandlerRegistry handlerRegistry;
 
@@ -33,7 +33,7 @@ final class MediatRImpl implements MediatR {
 <span class="fc" id="L33">        log.trace(&quot;Sending event: &quot; + event.getClass().getName());</span>
 <span class="fc" id="L34">        List&lt;EventHandler&lt;TEvent&gt;&gt; handlers =  handlerRegistry.getEventHandler((Class&lt;TEvent&gt;) event.getClass());</span>
 <span class="fc" id="L35">        handlers.stream()</span>
-<span class="fc" id="L36">                .peek(handler -&gt; log.trace(&quot;Handling event: &quot; + event.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName()))</span>
+<span class="fc" id="L36">                .peek(handler -&gt;  log.trace(&quot;Handling event: &quot; + event.getClass().getName() + &quot; with handler: &quot; + handler.getClass().getName()))</span>
 <span class="fc" id="L37">                .forEach(handler -&gt; handler.handle(event));</span>
 <span class="fc" id="L38">    }</span>
 
