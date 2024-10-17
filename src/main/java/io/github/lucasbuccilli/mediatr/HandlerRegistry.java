@@ -3,7 +3,7 @@ package io.github.lucasbuccilli.mediatr;
 import io.github.lucasbuccilli.mediatr.exceptions.DuplicateHandlerException;
 import io.github.lucasbuccilli.mediatr.exceptions.InvalidHandlerException;
 import io.github.lucasbuccilli.mediatr.exceptions.MissingHandlerException;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 
@@ -12,8 +12,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
-@Slf4j
+@CommonsLog
 final class HandlerRegistry {
     private final ApplicationContext applicationContext;
     private final Map<Class<? extends Request<?>>, RequestHandler<? extends Request<?>, ?>> requestHandlerRegistry = new HashMap<>();

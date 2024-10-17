@@ -2,12 +2,12 @@ package io.github.lucasbuccilli.mediatr;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Slf4j
+@CommonsLog
 @RequiredArgsConstructor
 final class MediatRImpl implements MediatR {
     private final HandlerRegistry handlerRegistry;
@@ -33,7 +33,7 @@ final class MediatRImpl implements MediatR {
         log.trace("Sending event: " + event.getClass().getName());
         List<EventHandler<TEvent>> handlers =  handlerRegistry.getEventHandler((Class<TEvent>) event.getClass());
         handlers.stream()
-                .peek(handler -> log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName()))
+                .peek(handler ->  log.trace("Handling event: " + event.getClass().getName() + " with handler: " + handler.getClass().getName()))
                 .forEach(handler -> handler.handle(event));
     }
 
